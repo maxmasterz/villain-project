@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE VICIOUS | Villain Era</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'acid-green': '#CCFF00',
+                        'obsidian': '#050505',
+                        'dark-gray': '#1A1A1A'
+                    },
+                    fontFamily: {
+                        'sans': ['Kanit', 'sans-serif'],
+                        'mono': ['"Share Tech Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glitch': 'glitch 1s linear infinite',
+                    },
+                    keyframes: {
+                        glitch: {
+                            '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                            '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                            '62%': { transform: 'translate(0,0) skew(5deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Kanit', sans-serif;
+            overflow-x: hidden;
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(204, 255, 0, 0.7);
+        }
+        .glitch-wrapper {
+            position: relative;
+        }
+        .glitch-wrapper::before,
+        .glitch-wrapper::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch-wrapper::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch-wrapper::after {
+            left: -2px;
+            text-shadow: -1px 0 #00fff9;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(30px, 9999px, 10px, 0); }
+            100% { clip: rect(80px, 9999px, 100px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(10px, 9999px, 80px, 0); }
+            100% { clip: rect(100px, 9999px, 20px, 0); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CCFF00; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fff; 
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-obsidian/90 backdrop-blur-md border-b border-acid-green/20">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black italic tracking-tighter text-white">
+                THE <span class="text-acid-green">VICIOUS</span>
+            </div>
+            <div class="hidden md:flex space-x-8 font-mono text-sm text-gray-400">
+                <a href="#manifesto" class="hover:text-acid-green transition">MANIFESTO</a>
+                <a href="#roster" class="hover:text-acid-green transition">THE ROSTER</a>
+                <a href="#chants" class="hover:text-acid-green transition">CHANTS</a>
+            </div>
+            <a href="#join" class="bg-acid-green text-black font-bold px-4 py-2 text-sm uppercase hover:bg-white transition skew-x-[-10deg]">
+                <span class="block skew-x-[10deg]">Join The Cult</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <!-- Changed background image to a Cyberpunk/Tech theme -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-30 grayscale mix-blend-overlay"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/80 to-transparent"></div>
+        
+        <div class="relative z-10 text-center px-4">
+            <p class="font-mono text-acid-green mb-4 tracking-[0.3em] animate-pulse">SYSTEM OVERRIDE DETECTED</p>
+            <h1 class="text-6xl md:text-9xl font-black uppercase leading-none mb-2 glitch-wrapper" data-text="BE BAD.">
+                BE BAD.
+            </h1>
+            <h1 class="text-6xl md:text-9xl font-black uppercase leading-none text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-white italic">
+                DO GOOD.
+            </h1>
+            <p class="mt-6 text-gray-400 max-w-xl mx-auto text-lg md:text-xl font-light">
+                ประวัติศาสตร์เขียนโดยผู้ชนะ แต่สไตล์และความมันส์... <br> <span class="text-white font-bold">เขียนโดยพวกเรา</span>
+            </p>
+            
+            <!-- Countdown -->
+            <div class="mt-12 p-6 border border-acid-green/30 bg-black/50 backdrop-blur inline-block">
+                <p class="text-xs text-acid-green font-mono mb-2 uppercase">Time until Takeover</p>
+                <div id="countdown" class="flex space-x-4 text-3xl md:text-5xl font-mono font-bold text-white">
+                    <div><span id="days">00</span><span class="text-sm text-gray-500 block">DAYS</span></div>
+                    <div class="text-acid-green">:</div>
+                    <div><span id="hours">00</span><span class="text-sm text-gray-500 block">HRS</span></div>
+                    <div class="text-acid-green">:</div>
+                    <div><span id="minutes">00</span><span class="text-sm text-gray-500 block">MIN</span></div>
+                    <div class="text-acid-green">:</div>
+                    <div><span id="seconds">00</span><span class="text-sm text-gray-500 block">SEC</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="bg-acid-green py-3 overflow-hidden whitespace-nowrap border-y-4 border-black">
+        <div class="inline-block animate-[marquee_20s_linear_infinite] font-black text-black text-xl italic uppercase">
+            // VILLAIN ERA // NO HEROES ALLOWED // MARCH 27 // THE TAKEOVER BEGINS // JOIN THE SYNDICATE // GOOD GIRLS GO TO HEAVEN, BAD GIRLS RULE THE PITCH // 
+            // VILLAIN ERA // NO HEROES ALLOWED // MARCH 27 // THE TAKEOVER BEGINS // JOIN THE SYNDICATE // GOOD GIRLS GO TO HEAVEN, BAD GIRLS RULE THE PITCH //
+        </div>
+    </div>
+
+    <!-- Manifesto Section -->
+    <section id="manifesto" class="py-20 bg-dark-gray relative">
+        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <!-- Changed to a rebel/attitude image -->
+                <img src="https://images.unsplash.com/photo-1515523110800-941516ebcd99?auto=format&fit=crop&w=1080&q=80" alt="Villian Vibe" class="w-full grayscale contrast-125 border-l-4 border-acid-green">
+            </div>
+            <div>
+                <h2 class="text-acid-green font-mono text-sm tracking-widest mb-2">01 // THE CODE</h2>
+                <h3 class="text-4xl md:text-5xl font-bold uppercase mb-6 leading-tight">We are the <br><span class="text-gray-500 line-through decoration-acid-green decoration-4">Problem</span> Solution.</h3>
+                <p class="text-gray-400 mb-6 leading-relaxed">
+                    โลกนี้มีฮีโร่เยอะเกินไปแล้ว วันที่ 27 มีนาคมนี้ เราขอทวงคืนความสนุก ความบ้า และความเท่กลับคืนมา 
+                    เราไม่ได้มาร้ายเพื่อให้คนเกลียด แต่เรามาร้ายเพื่อให้ทุกคนรัก
+                </p>
+                <ul class="space-y-4 font-mono text-sm">
+                    <li class="flex items-center"><span class="w-3 h-3 bg-acid-green mr-3"></span> RULES ARE MEANT TO BE BROKEN (WITH STYLE)</li>
+                    <li class="flex items-center"><span class="w-3 h-3 bg-acid-green mr-3"></span> WE LEAVE NO MINION BEHIND</li>
+                    <li class="flex items-center"><span class="w-3 h-3 bg-acid-green mr-3"></span> LOSE THE GAME, WIN THE CROWD</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roster / Gallery -->
+    <section id="roster" class="py-20 bg-obsidian">
+        <div class="container mx-auto px-6">
+            <h2 class="text-acid-green font-mono text-sm tracking-widest mb-2">02 // THE SYNDICATE</h2>
+            <h3 class="text-4xl font-bold uppercase mb-12">Key Players</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1: President -->
+                <div class="group relative overflow-hidden border border-gray-800 hover:border-acid-green transition duration-300">
+                    <div class="absolute inset-0 bg-acid-green/10 opacity-0 group-hover:opacity-100 transition z-10"></div>
+                    <!-- New President Image -->
+                    <img src="https://images.unsplash.com/photo-1620619767323-b95a89183081?auto=format&fit=crop&w=800&q=80" class="w-full h-96 object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                    <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+                        <p class="font-mono text-acid-green text-xs">THE OVERLORD</p>
+                        <h4 class="text-2xl font-bold">PRESIDENT</h4>
+                    </div>
+                </div>
+
+                <!-- Card 2: Cheer Squad -->
+                <div class="group relative overflow-hidden border border-gray-800 hover:border-acid-green transition duration-300">
+                    <div class="absolute inset-0 bg-acid-green/10 opacity-0 group-hover:opacity-100 transition z-10"></div>
+                    <!-- New Crowd/Cheer Image -->
+                    <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" class="w-full h-96 object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                    <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+                        <p class="font-mono text-acid-green text-xs">THE SIRENS</p>
+                        <h4 class="text-2xl font-bold">CHEER SQUAD</h4>
+                    </div>
+                </div>
+
+                <!-- Card 3: Athletes -->
+                <div class="group relative overflow-hidden border border-gray-800 hover:border-acid-green transition duration-300">
+                    <div class="absolute inset-0 bg-acid-green/10 opacity-0 group-hover:opacity-100 transition z-10"></div>
+                    <!-- New Athlete Image -->
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80" class="w-full h-96 object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                    <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+                        <p class="font-mono text-acid-green text-xs">THE ASSASSINS</p>
+                        <h4 class="text-2xl font-bold">ATHLETES</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chants / Cheat Sheet -->
+    <section id="chants" class="py-20 bg-dark-gray border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center max-w-4xl">
+            <h2 class="text-acid-green font-mono text-sm tracking-widest mb-4">03 // SONIC WARFARE</h2>
+            <h3 class="text-3xl font-bold uppercase mb-8">Cheat Sheet</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6 text-left">
+                <div class="bg-black p-6 border-l-4 border-acid-green">
+                    <h4 class="font-mono text-acid-green mb-2">CODE: BAD GUY</h4>
+                    <p class="text-gray-300 font-bold text-lg">"We're the bad guys... DUH!"</p>
+                    <p class="text-gray-500 mt-2 text-sm">(Clap x 2) (Stomp x 2) HUH!</p>
+                </div>
+                <div class="bg-black p-6 border-l-4 border-white">
+                    <h4 class="font-mono text-white mb-2">CODE: VICTORY</h4>
+                    <p class="text-gray-300 font-bold text-lg">"Villains on top, Heroes can't stop!"</p>
+                    <p class="text-gray-500 mt-2 text-sm">ใครไม่ร้าย... เราไม่คุย! (Boom!)</p>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                 <button class="bg-transparent border border-gray-500 text-gray-300 px-6 py-3 hover:border-acid-green hover:text-acid-green transition font-mono">
+                    DOWNLOAD PDF LYRICS
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / CTA -->
+    <footer class="py-12 bg-black text-center border-t border-acid-green/30">
+        <h2 class="text-4xl md:text-6xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-800 mb-6">
+            SEE YOU AT THE FINISH LINE.
+        </h2>
+        <p class="text-gray-500 font-mono text-xs">EST. 2024 | DESIGNED FOR THE REBELLION</p>
+    </footer>
+
+    <!-- Script for Countdown and Marquee -->
+    <script>
+        (function() {
+            // Set the date we're counting down to
+            var countDownDate = new Date("Mar 27, 2026 08:00:00").getTime();
+
+            // Update the count down every 1 second
+            var countdownInterval = setInterval(function() {
+                var now = new Date().getTime();
+                var distance = countDownDate - now;
+
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                var daysEl = document.getElementById("days");
+                var hoursEl = document.getElementById("hours");
+                var minutesEl = document.getElementById("minutes");
+                var secondsEl = document.getElementById("seconds");
+
+                if (daysEl) daysEl.innerHTML = days < 10 ? "0" + days : days;
+                if (hoursEl) hoursEl.innerHTML = hours < 10 ? "0" + hours : hours;
+                if (minutesEl) minutesEl.innerHTML = minutes < 10 ? "0" + minutes : minutes;
+                if (secondsEl) secondsEl.innerHTML = seconds < 10 ? "0" + seconds : seconds;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    var countdownEl = document.getElementById("countdown");
+                    if (countdownEl) countdownEl.innerHTML = "IT'S SHOWTIME";
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>
