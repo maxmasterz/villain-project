@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jenosize 10x SuperHuman Hackathon Judge</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts: Noto Sans Thai -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #FF4B1F 0%, #1FDDFF 100%);
+        }
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            margin-top: -8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICONS COMPONENTS (Embedded for Stability) ---
+        const IconBase = ({ children, className }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
+
+        const Star = ({ className }) => (
+            <IconBase className={className}>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </IconBase>
+        );
+
+        const Award = ({ className }) => (
+            <IconBase className={className}>
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </IconBase>
+        );
+
+        const Zap = ({ className }) => (
+            <IconBase className={className}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </IconBase>
+        );
+
+        const Layout = ({ className }) => (
+            <IconBase className={className}>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </IconBase>
+        );
+
+        const MessageSquare = ({ className }) => (
+            <IconBase className={className}>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </IconBase>
+        );
+
+        const Save = ({ className }) => (
+            <IconBase className={className}>
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </IconBase>
+        );
+
+        const CheckCircle = ({ className }) => (
+            <IconBase className={className}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </IconBase>
+        );
+
+        const AlertCircle = ({ className }) => (
+            <IconBase className={className}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </IconBase>
+        );
+
+        // --- CONFIGURATION ---
+        // ⚠️ สำคัญ: ใส่ URL ของ Google Apps Script ที่ Deploy แล้วตรงนี้
+        // หากยังไม่มี ให้ใช้ค่าว่างไว้ก่อน จะเป็นการจำลองการส่งข้อมูล
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoMiHwK6bx9GUJz4elTm6vhm7GqhD6QukTmmzfxqTA7AMFMfcPcp58e7wbnTYJiDn9wg/exec"; 
+
+        const TEAMS = Array.from({ length: 12 }, (_, i) => `Team ${i + 1}`);
+
+        // Criteria Structure based on the uploaded document
+        const CRITERIA_DATA = [
+            {
+                id: 'part1',
+                title: 'PART 1: THE IMPACT (40%)',
+                subtitle: 'แก้ปัญหาได้จริง คุ้มค่าแก่การลงทุน',
+                icon: <Award className="w-6 h-6 text-yellow-500" />,
+                color: 'border-yellow-500',
+                items: [
+                    {
+                        id: 'c1',
+                        label: 'Business Value & Problem Solving',
+                        desc: 'แก้ Pain Point ตรงจุด / ปัญหาเร่งด่วน',
+                        max: 20
+                    },
+                    {
+                        id: 'c2',
+                        label: 'ROI & Scalability',
+                        desc: 'โอกาสสร้างรายได้ ลดต้นทุน / ขยายผลได้ง่าย',
+                        max: 20
+                    }
+                ]
+            },
+            {
+                id: 'part2',
+                title: 'PART 2: THE INNOVATION (30%)',
+                subtitle: 'การใช้ AI และเทคโนโลยีอย่างชาญฉลาด',
+                icon: <Zap className="w-6 h-6 text-blue-500" />,
+                color: 'border-blue-500',
+                items: [
+                    {
+                        id: 'c3',
+                        label: 'AI Integration',
+                        desc: 'เลือกใช้ AI Tools (Veo 3, Nano Banana) เหมาะสม คุ้มค่า',
+                        max: 15
+                    },
+                    {
+                        id: 'c4',
+                        label: 'Creativity & 10x Efficiency',
+                        desc: 'ไอเดียแปลกใหม่ / งานเร็วขึ้นดีขึ้นแบบ 10x',
+                        max: 15
+                    }
+                ]
+            },
+            {
+                id: 'part3',
+                title: 'PART 3: THE REALITY (20%)',
+                subtitle: 'ทำได้จริง ไม่ใช่แค่ความฝัน',
+                icon: <Layout className="w-6 h-6 text-green-500" />,
+                color: 'border-green-500',
+                items: [
+                    {
+                        id: 'c5',
+                        label: 'Feasibility & Prototype',
+                        desc: 'Demo ทำงานได้จริง / เป็นไปได้ทางเทคนิคและงบประมาณ',
+                        max: 20
+                    }
+                ]
+            },
+            {
+                id: 'part4',
+                title: 'PART 4: THE PITCH (10%)',
+                subtitle: 'สื่อสารรู้เรื่อง น่าเชื่อถือ',
+                icon: <MessageSquare className="w-6 h-6 text-purple-500" />,
+                color: 'border-purple-500',
+                items: [
+                    {
+                        id: 'c6',
+                        label: 'Storytelling & Q&A',
+                        desc: 'เล่าเรื่องน่าติดตาม / ตอบคำถามมั่นใจ',
+                        max: 10
+                    }
+                ]
+            }
+        ];
+
+        const App = () => {
+            const [judgeName, setJudgeName] = useState('');
+            const [selectedTeam, setSelectedTeam] = useState('');
+            const [scores, setScores] = useState({
+                c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0
+            });
+            const [feedbackStrength, setFeedbackStrength] = useState('');
+            const [feedbackImprovement, setFeedbackImprovement] = useState('');
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitStatus, setSubmitStatus] = useState('idle'); // idle, success, error
+
+            // Calculate Total Score
+            const totalScore = useMemo(() => {
+                return Object.values(scores).reduce((a, b) => a + Number(b), 0);
+            }, [scores]);
+
+            const handleScoreChange = (id, value) => {
+                setScores(prev => ({
+                    ...prev,
+                    [id]: Number(value)
+                }));
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                
+                if (!judgeName || !selectedTeam) {
+                    alert("กรุณาระบุชื่อกรรมการและเลือกทีม");
+                    return;
+                }
+
+                setIsSubmitting(true);
+
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    judgeName,
+                    team: selectedTeam,
+                    ...scores,
+                    totalScore,
+                    feedbackStrength,
+                    feedbackImprovement
+                };
+
+                try {
+                    // Logic to send to Google Sheet
+                    if (GOOGLE_SCRIPT_URL) {
+                        await fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors', // Important for Google Apps Script Web App
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                    } else {
+                        // Simulation for Demo
+                        await new Promise(r => setTimeout(r, 1500));
+                        console.log("Submitted Payload:", payload);
+                    }
+
+                    setSubmitStatus('success');
+                    window.scrollTo(0,0);
+                } catch (error) {
+                    console.error("Error submitting", error);
+                    setSubmitStatus('error');
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const resetForm = () => {
+                setSelectedTeam('');
+                setScores({ c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 });
+                setFeedbackStrength('');
+                setFeedbackImprovement('');
+                setSubmitStatus('idle');
+            };
+
+            if (submitStatus === 'success') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                                <CheckCircle className="h-10 w-10 text-green-600" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">บันทึกคะแนนสำเร็จ!</h2>
+                            <p className="text-gray-600 mb-6">ขอบคุณครับ ข้อมูลถูกส่งไปที่ระบบกลางเรียบร้อยแล้ว</p>
+                            <button 
+                                onClick={resetForm}
+                                className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-indigo-700 transition"
+                            >
+                                ให้คะแนนทีมถัดไป
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen pb-12">
+                    {/* Header */}
+                    <div className="gradient-header text-white p-6 pb-12 rounded-b-3xl shadow-lg">
+                        <div className="max-w-3xl mx-auto">
+                            <div className="flex items-center space-x-2 mb-2 opacity-90">
+                                <Star className="w-5 h-5" />
+                                <span className="text-sm font-medium tracking-wider">JENOSIZE HACKATHON 2026</span>
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-2">10x SuperHuman Judging</h1>
+                            <p className="opacity-90">ระบบให้คะแนนกรรมการ (Scorecard)</p>
+                        </div>
+                    </div>
+
+                    <div className="max-w-3xl mx-auto px-4 -mt-8">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            
+                            {/* Judge Info Card */}
+                            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            ชื่อเล่นกรรมการ (Judge Name)
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            value={judgeName}
+                                            onChange={(e) => setJudgeName(e.target.value)}
+                                            placeholder="เช่น พี่เอ, พี่บี"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            ทีมที่เข้าแข่งขัน (Team)
+                                        </label>
+                                        <div className="relative">
+                                            <select 
+                                                required
+                                                value={selectedTeam}
+                                                onChange={(e) => setSelectedTeam(e.target.value)}
+                                                className="w-full p-3 border border-gray-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                            >
+                                                <option value="">-- เลือกทีม --</option>
+                                                {TEAMS.map(team => (
+                                                    <option key={team} value={team}>{team}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Scoring Sections */}
+                            {CRITERIA_DATA.map((part) => (
+                                <div key={part.id} className={`bg-white rounded-xl shadow-md overflow-hidden border-t-4 ${part.color}`}>
+                                    <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-start space-x-3">
+                                        <div className="mt-1">{part.icon}</div>
+                                        <div>
+                                            <h3 className="font-bold text-lg text-gray-800">{part.title}</h3>
+                                            <p className="text-sm text-gray-500">{part.subtitle}</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 space-y-8">
+                                        {part.items.map((item) => (
+                                            <div key={item.id}>
+                                                <div className="flex justify-between items-end mb-2">
+                                                    <div>
+                                                        <label className="font-semibold text-gray-800 block">
+                                                            {item.label}
+                                                        </label>
+                                                        <span className="text-xs text-gray-500 block mt-1">
+                                                            {item.desc}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-right ml-4">
+                                                        <span className="text-2xl font-bold text-indigo-600">{scores[item.id]}</span>
+                                                        <span className="text-gray-400 text-sm"> / {item.max}</span>
+                                                    </div>
+                                                </div>
+                                                <input 
+                                                    type="range" 
+                                                    min="0" 
+                                                    max={item.max} 
+                                                    step="1"
+                                                    value={scores[item.id]}
+                                                    onChange={(e) => handleScoreChange(item.id, e.target.value)}
+                                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                />
+                                                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                                    <span>0</span>
+                                                    <span>{item.max}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Feedback Section */}
+                            <div className="bg-white rounded-xl shadow-md p-6 border-t-4 border-gray-400">
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <MessageSquare className="w-5 h-5 text-gray-600" />
+                                    <h3 className="font-bold text-lg text-gray-800">Judge's Feedback (สำคัญ)</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                            จุดแข็ง (Strengths) - สิ่งที่ชอบมากที่สุด
+                                        </label>
+                                        <textarea 
+                                            rows="2"
+                                            value={feedbackStrength}
+                                            onChange={(e) => setFeedbackStrength(e.target.value)}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                            placeholder="เขียนคำชม..."
+                                        ></textarea>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                            จุดที่ควรพัฒนา (Areas for Improvement) - Coach ไม่ใช่ Judge
+                                        </label>
+                                        <textarea 
+                                            rows="2"
+                                            value={feedbackImprovement}
+                                            onChange={(e) => setFeedbackImprovement(e.target.value)}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                            placeholder="แนะนำเพื่อให้น้องๆ ไปต่อได้..."
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sticky Footer for Total Score & Submit */}
+                            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl z-50">
+                                <div className="max-w-3xl mx-auto flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Score</p>
+                                        <p className="text-3xl font-black text-indigo-600 leading-none">
+                                            {totalScore} <span className="text-lg text-gray-400 font-normal">/ 100</span>
+                                        </p>
+                                    </div>
+                                    <button 
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-bold text-white transition transform active:scale-95 shadow-lg ${
+                                            isSubmitting 
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
+                                        }`}
+                                    >
+                                        {isSubmitting ? (
+                                            <span>กำลังส่ง...</span>
+                                        ) : (
+                                            <>
+                                                <Save className="w-5 h-5" />
+                                                <span>Confirm Score</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {/* Spacing for fixed footer */}
+                            <div className="h-24"></div>
+
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
